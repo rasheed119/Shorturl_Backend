@@ -21,7 +21,6 @@ router.get("/all", async (req, res) => {
   res.status(200).json({ data: all_users });
 });
 
-
 //User Register
 router.post("/register", async (req, res) => {
   try {
@@ -76,7 +75,6 @@ router.post("/register", async (req, res) => {
     res.json({ Error: error.message });
   }
 });
-
 
 //Account Login
 router.post("/login", async (req, res) => {
@@ -206,9 +204,8 @@ router.put("/reset_password", async (req, res) => {
 });
 
 //Deactivate account
-router.put("/deactivate_account",isAuthenticated,async(req,res) =>{
+router.put("/deactivate_account", isAuthenticated, async (req, res) => {
   const { email } = req.body;
-
-} )
+});
 
 export { router as userRouter };
