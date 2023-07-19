@@ -3,6 +3,7 @@ import dotenv from "dotenv";
 import mongoose from "mongoose";
 import cors from "cors";
 import { userRouter } from "./DB/Router/userRouter.js";
+import { shorturlRouter } from "./DB/Router/shorturlRouter.js";
 import bodyParser from "body-parser";
 
 dotenv.config();
@@ -20,6 +21,7 @@ app.get("/", (req, res) => {
 
 
 app.use("/users", userRouter);
+app.use("/shorturl",shorturlRouter);
 
 mongoose.connect(process.env.mongourl);
 

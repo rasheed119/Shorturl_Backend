@@ -8,6 +8,19 @@ const shorturlSchema = new mongoose.Schema({
     longurl : {
         type : String,
         required : true
+    },
+    shortCode : {
+        type : String,
+        required : true
+    },
+    userid : {
+        type : mongoose.Schema.Types.ObjectId,
+        ref : "users",
+        required : true
+    },
+    count : {
+        type :Number,
+        required : true
     }
 })
 

@@ -144,7 +144,7 @@ router.put("/forgot_password", async (req, res) => {
   const lowercasemail = username + domain;
   const user_exsist = await userModel.findOne({ email: lowercasemail });
   if (!user_exsist) {
-    return res.status(200).json({ message: "User Not Found" });
+    return res.status(400).json({ message: "User Not Found" });
   }
   const token = crypto.randomBytes(5).toString("hex");
   await userModel.findOneAndUpdate(
@@ -167,7 +167,7 @@ router.put("/forgot_password", async (req, res) => {
       from: mail, // sender address
       to: lowercasemail, // list of receivers
       subject: "Short Url", // Subject line
-      text: `To reset the account password ,Please Click the link to Continue : ${link}/forgotpassword & Your secret key is ${token}`, // plain text body
+      text: `To reset the account password ,Please Click the link to Continue : ${link}/resetpassword & Your secret key is ${token}`, // plain text body
     });
   }
   main().catch(console.error.message);
@@ -185,10 +185,10 @@ router.put("/reset_password", async (req, res) => {
   const lowercasemail = username + domain;
   const find_user = await userModel.findOne({ email: lowercasemail });
   if (!find_user) {
-    return res.json({ message: "User Not Found" });
+    return res.status(400).json({ message: "User Not Found" });
   }
   if (find_user.SecurityCode !== token) {
-    return res.json({ message: "Invalid Code" });
+    return res.status(400).json({ message: "Invalid Code" });
   }
   const salt = await bcrypt.genSalt(10);
   const hashpassword = await bcrypt.hash(newpassword, salt);

@@ -25,10 +25,6 @@ const userSchema = new mongoose.Schema({
   SecurityCode: {
     type: String,
     required: false,
-  },
-  url : {
-    type : mongoose.Schema.Types.ObjectId,
-    required:false
   }
 });
 export const userModel = mongoose.model("users", userSchema);
