@@ -10,7 +10,7 @@ router.post("/shorten", isAuthenticated, async (req, res) => {
     const { longurl, userid } = req.body;
     const shortidCode = nanoid(5);
     const new_url = await shorturlModel({
-      shorturl: `http://localhost:8080/shorturl/${shortidCode}`,
+      shorturl: `https://shorturl-backend.vercel.app/shorturl/${shortidCode}`,
       longurl,
       shortCode: shortidCode,
       userid,
