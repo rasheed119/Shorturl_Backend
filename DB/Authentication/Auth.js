@@ -9,7 +9,7 @@ export default function isAuthenticated(req,res,next){
         jwt.verify(token,process.env.secret_key);
         next();
     } catch (error) {
-        res.json({ message : "Invalid Token" });
+        res.json({ message : error.message });
     }
 
 }
