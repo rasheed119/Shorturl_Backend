@@ -4,7 +4,6 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
 import nodemailer from "nodemailer";
-import isAuthenticated from "../Authentication/Auth.js";
 import crypto from "crypto";
 
 dotenv.config();
@@ -46,7 +45,7 @@ router.post("/register", async (req, res) => {
 
     const transporter = nodemailer.createTransport({
       //host: "smtp.gmail.com",
-      service : "gmail",
+      service: "gmail",
       auth: {
         // TODO: replace `user` and `pass` values from <https://forwardemail.net>
         user: mail,

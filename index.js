@@ -19,9 +19,10 @@ app.get("/", (req, res) => {
   res.send({ message: "Hello There!" });
 });
 
+mongoose.connect(process.env.mongourl);
+
 app.use("/users", userRouter);
 app.use("/", shorturlRouter);
 
-mongoose.connect(process.env.mongourl);
 
 app.listen(PORT, () => console.log(`Server started at localhost:${PORT}`));
