@@ -7,7 +7,7 @@ import { shorturlRouter } from "./DB/Router/shorturlRouter.js";
 import bodyParser from "body-parser";
 
 dotenv.config();
-const PORT = process.env.PORT;
+const PORT = process.env.PORT || 8080;
 
 const app = express();
 
@@ -19,9 +19,8 @@ app.get("/", (req, res) => {
   res.send({ message: "Hello There!" });
 });
 
-
 app.use("/users", userRouter);
-app.use("/",shorturlRouter);
+app.use("/", shorturlRouter);
 
 mongoose.connect(process.env.mongourl);
 

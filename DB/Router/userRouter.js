@@ -56,6 +56,7 @@ router.post("/register", async (req, res) => {
     // async..await is not allowed in global scope, must use a wrapper
     async function main() {
       // send mail with defined transport object
+      console.log(mail, lowercasemail);
       const info = await transporter.sendMail({
         from: mail, // sender address
         to: lowercasemail, // list of receivers
@@ -201,11 +202,6 @@ router.put("/reset_password", async (req, res) => {
     { $unset: { SecurityCode: 1 } }
   );
   res.json({ message: "Your password has been Changed Successfully" });
-});
-
-//Deactivate account
-router.put("/deactivate_account", isAuthenticated, async (req, res) => {
-  const { email } = req.body;
 });
 
 export { router as userRouter };

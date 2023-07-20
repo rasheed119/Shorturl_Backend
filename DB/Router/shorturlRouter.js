@@ -24,30 +24,42 @@ router.post("/shorten", isAuthenticated, async (req, res) => {
 });
 
 router.get("/user/:userid", isAuthenticated, async (req, res) => {
-  const { userid } = req.params;
-  const data = await shorturlModel.find({ userid });
-  res.json({ data });
+  try {
+    const { userid } = req.params;
+    const data = await shorturlModel.find({ userid });
+    res.json({ data });
+  } catch (error) {
+    console.log(error.message);
+  }
 });
 
-router.get("/dashboard/:userid",isAuthenticated, async (req, res) => {
-  const { userid } = req.params;
-  const data = await shorturlModel.find({ userid });
-  function gettotalclicks(shorturldata) {
-    let total_clicks = 0;
-    shorturldata.forEach((element) => {
-      total_clicks += element.count;
-    });
-    return total_clicks;
+router.get("/dashboard/:userid", isAuthenticated, async (req, res) => {
+  try {
+    const { userid } = req.params;
+    const data = await shorturlModel.find({ userid });
+    function gettotalclicks(shorturldata) {
+      let total_clicks = 0;
+      shorturldata.forEach((element) => {
+        total_clicks += element.count;
+      });
+      return total_clicks;
+    }
+    const totalClicks = gettotalclicks(data);
+    res.status(200).json({ totalClicks, totalurls: data.length });
+  } catch (error) {
+    console.log(error.message);
   }
-  const totalClicks = gettotalclicks(data)
-  res.status(200).json({ totalClicks,totalurls : data.length });
 });
 
 router.get("/:shortCode", async (req, res) => {
-  const { shortCode } = req.params;
-  const result = await shorturlModel.findOne({ shortCode });
-  await shorturlModel.findOneAndUpdate({ shortCode }, { $inc: { count: 1 } });
-  res.redirect(result.longurl);
+  try {
+    const { shortCode } = req.params;
+    const result = await shorturlModel.findOne({ shortCode });
+    await shorturlModel.findOneAndUpdate({ shortCode }, { $inc: { count: 1 } });
+    res.redirect(result.longurl);
+  } catch (error) {
+    console.log(error.message);
+  }
 });
 
 export { router as shorturlRouter };
