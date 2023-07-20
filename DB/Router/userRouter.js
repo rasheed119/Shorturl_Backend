@@ -45,7 +45,8 @@ router.post("/register", async (req, res) => {
     await new_user.save();
 
     const transporter = nodemailer.createTransport({
-      host: "smtp.gmail.com",
+      //host: "smtp.gmail.com",
+      service : "gmail",
       auth: {
         // TODO: replace `user` and `pass` values from <https://forwardemail.net>
         user: mail,
