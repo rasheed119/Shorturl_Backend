@@ -2,12 +2,19 @@ import { shorturlModel } from "../Model/shorturlModel.js";
 import isAuthenticated from "../Authentication/Auth.js";
 import express from "express";
 import { nanoid } from "nanoid";
+import { userModel } from "../Model/userModel.js";
+import mongoose from "mongoose";
 
 const router = express.Router();
 
 router.post("/shorten", isAuthenticated, async (req, res) => {
   try {
     const { longurl, userid } = req.body;
+    const userIdObj = new mongoose.Types.ObjectId(userid);
+    const find_User = await userModel.findById(userIdObj);
+    if(!find_User){
+      return res.status(400).json({ message : "User Not Found" })
+    }
     const shortidCode = nanoid(5);
     const new_url = await shorturlModel({
       shorturl: `https://urlsshort.vercel.app/${shortidCode}`,

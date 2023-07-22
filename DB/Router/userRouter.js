@@ -45,7 +45,9 @@ router.post("/register", async (req, res) => {
 
     const transporter = nodemailer.createTransport({
       //host: "smtp.gmail.com",
-      service: "gmail",
+      host: "smtp.gmail.com",
+      port : 465,
+      secure : true,
       auth: {
         // TODO: replace `user` and `pass` values from <https://forwardemail.net>
         user: mail,
@@ -56,7 +58,6 @@ router.post("/register", async (req, res) => {
     // async..await is not allowed in global scope, must use a wrapper
     async function main() {
       // send mail with defined transport object
-      console.log(mail, lowercasemail);
       const info = await transporter.sendMail({
         from: mail, // sender address
         to: lowercasemail, // list of receivers
@@ -154,6 +155,8 @@ router.put("/forgot_password", async (req, res) => {
   );
   const transporter = nodemailer.createTransport({
     host: "smtp.gmail.com",
+    port : 465,
+    secure : true,
     auth: {
       // TODO: replace `user` and `pass` values from <https://forwardemail.net>
       user: mail,
@@ -167,7 +170,7 @@ router.put("/forgot_password", async (req, res) => {
     const info = await transporter.sendMail({
       from: mail, // sender address
       to: lowercasemail, // list of receivers
-      subject: "Short Url", // Subject line
+      subject: "Forgot Password", // Subject line
       text: `To reset the account password ,Please Click the link to Continue : ${link}/resetpassword & Your secret key is ${token}`, // plain text body
     });
   }
