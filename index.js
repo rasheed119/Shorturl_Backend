@@ -19,10 +19,12 @@ app.get("/", (req, res) => {
   res.send({ message: "Hello There!" });
 });
 
-mongoose.connect(process.env.mongourl);
-
 app.use("/users", userRouter);
 app.use("/", shorturlRouter);
 
+mongoose
+  .connect(process.env.mongourl)
+  .then(() => console.log("Connected to MongoDB"))
+  .catch((error) => console.log("Error Connecting to MongoDB", error.message));
 
 app.listen(PORT, () => console.log(`Server started at localhost:${PORT}`));

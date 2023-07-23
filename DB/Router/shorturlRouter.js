@@ -12,8 +12,8 @@ router.post("/shorten", isAuthenticated, async (req, res) => {
     const { longurl, userid } = req.body;
     const userIdObj = new mongoose.Types.ObjectId(userid);
     const find_User = await userModel.findById(userIdObj);
-    if(!find_User){
-      return res.status(400).json({ message : "User Not Found" })
+    if (!find_User) {
+      return res.status(400).json({ message: "User Not Found" });
     }
     const shortidCode = nanoid(5);
     const new_url = await shorturlModel({
