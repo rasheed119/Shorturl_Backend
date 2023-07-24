@@ -4,13 +4,14 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
 import nodemailer from "nodemailer";
-import crypto from "crypto";
+import e from "express";
 
 dotenv.config();
 
 const mail = process.env.mailid;
 const passkey = process.env.password;
 const link = process.env.LINK;
+const secret_key = process.env.secret_key;
 
 const router = express.Router();
 
@@ -44,7 +45,6 @@ router.post("/register", async (req, res) => {
     await new_user.save();
 
     const transporter = nodemailer.createTransport({
-      //host: "smtp.gmail.com",
       host: "smtp.gmail.com",
       port: 465,
       secure: true,
@@ -58,14 +58,12 @@ router.post("/register", async (req, res) => {
     // async..await is not allowed in global scope, must use a wrapper
     async function main() {
       // send mail with defined transport object
-      const info = await transporter.sendMail({
+      await transporter.sendMail({
         from: mail, // sender address
         to: lowercasemail, // list of receivers
         subject: "Short Url", // Subject line
-        text: `To activate the account ,Please Click the link to Continue : ${link}/activateaccount`, // plain text body
+        text: `Click the below link to activate your account :\n ${link}/activateaccount/${lowercasemail}`, // plain text body
       });
-
-      console.log("Message sent: %s", info.messageId);
     }
     main().catch(console.error.message);
     res.status(200).json({
@@ -75,6 +73,43 @@ router.post("/register", async (req, res) => {
   } catch (error) {
     console.log(error.message);
     res.json({ Error: error.message });
+  }
+});
+
+//Register Resend Mail
+router.get("/registerresendmail/:email", async (req, res) => {
+  try {
+    const { email } = req.params;
+    const index = email.indexOf("@");
+    const username = email.slice(0, index).toLowerCase();
+    let domain = email.slice(index);
+    const lowercasemail = username + domain;
+    const transporter = nodemailer.createTransport({
+      host: "smtp.gmail.com",
+      port: 465,
+      secure: true,
+      auth: {
+        // TODO: replace `user` and `pass` values from <https://forwardemail.net>
+        user: mail,
+        pass: passkey,
+      },
+    });
+
+    // async..await is not allowed in global scope, must use a wrapper
+    async function main() {
+      // send mail with defined transport object
+      await transporter.sendMail({
+        from: mail, // sender address
+        to: lowercasemail, // list of receivers
+        subject: "Short Url", // Subject line
+        text: `Click the below link to activate your account :\n ${link}/activateaccount/${lowercasemail}`, // plain text body
+      });
+    }
+    main().catch(console.error.message);
+    res.status(200).json({ message: "Mail Sent Successfully" });
+  } catch (error) {
+    console.log(error.message);
+    res.status(400).json({ message: `${error.message}` });
   }
 });
 
@@ -148,7 +183,9 @@ router.put("/forgot_password", async (req, res) => {
   if (!user_exsist) {
     return res.status(400).json({ message: "User Not Found" });
   }
-  const token = crypto.randomBytes(5).toString("hex");
+  const token = jwt.sign({ userid: user_exsist._id }, secret_key, {
+    expiresIn: "5m",
+  });
   await userModel.findOneAndUpdate(
     { email: lowercasemail },
     { $set: { SecurityCode: token } }
@@ -167,12 +204,12 @@ router.put("/forgot_password", async (req, res) => {
   // async..await is not allowed in global scope, must use a wrapper
   async function main() {
     // send mail with defined transport object
-    const forgot_password_link = `${link}/resetpassword?token=${token}&email=${lowercasemail}`
-    const info = await transporter.sendMail({
+    const forgot_password_link = `${link}/resetpassword?token=${token}&email=${lowercasemail}`;
+    await transporter.sendMail({
       from: mail, // sender address
       to: lowercasemail, // list of receivers
       subject: "Forgot Password", // Subject line
-      text: `Click the below link to reset the password : \n ${forgot_password_link}`, // plain text body
+      text: `Click the below link to reset the password,This link will expire in 5 minutes : \n ${forgot_password_link}`, // plain text body
     });
   }
   main().catch(console.error.message);
@@ -183,29 +220,37 @@ router.put("/forgot_password", async (req, res) => {
 
 //Reset Password
 router.put("/reset_password", async (req, res) => {
-  const { email, token, newpassword } = req.body;
-  const index = email.indexOf("@");
-  const username = email.slice(0, index).toLowerCase();
-  let domain = email.slice(index);
-  const lowercasemail = username + domain;
-  const find_user = await userModel.findOne({ email: lowercasemail });
-  if (!find_user) {
-    return res.status(400).json({ message: "User Not Found" });
+  try {
+    const { email, token, newpassword } = req.body;
+    const index = email.indexOf("@");
+    const username = email.slice(0, index).toLowerCase();
+    let domain = email.slice(index);
+    const lowercasemail = username + domain;
+    const find_User = await userModel.findOne({ email: lowercasemail });
+    if (!find_User) {
+      return res.status(400).json({ message: "User Not Found" });
+    }
+    jwt.verify(token, secret_key, async function (err) {
+      if (err) {
+        return res.status(400).json({ message: `${err.message}` });
+      } else {
+        const salt = await bcrypt.genSalt(10);
+        const hashpassword = await bcrypt.hash(newpassword, salt);
+        await userModel.findOneAndUpdate(
+          { email: lowercasemail },
+          { $set: { password: hashpassword } }
+        );
+        await userModel.findOneAndUpdate(
+          { email: lowercasemail },
+          { $unset: { SecurityCode: 1 } }
+        );
+        res.status(200).json({ message: "Password Changed Successfully" });
+      }
+    });
+  } catch (error) {
+    console.log(error.message);
+    res.status(400).json({ Error: `${error.message}` });
   }
-  if (find_user.SecurityCode !== token) {
-    return res.status(400).json({ message: "Invalid Code" });
-  }
-  const salt = await bcrypt.genSalt(10);
-  const hashpassword = await bcrypt.hash(newpassword, salt);
-  await userModel.findOneAndUpdate(
-    { email: lowercasemail },
-    { $set: { password: hashpassword } }
-  );
-  await userModel.findOneAndUpdate(
-    { email: lowercasemail },
-    { $unset: { SecurityCode: 1 } }
-  );
-  res.json({ message: "Your password has been Changed Successfully" });
 });
 
 export { router as userRouter };
