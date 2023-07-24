@@ -17,7 +17,7 @@ router.post("/shorten", isAuthenticated, async (req, res) => {
     }
     const shortidCode = nanoid(5);
     const new_url = await shorturlModel({
-      shorturl: `https://shorturl-backend-u4dw.onrender.com/${shortidCode}`,
+      shorturl: `https://shorturl-backend-9cv8.onrender.com/${shortidCode}`,
       longurl,
       shortCode: shortidCode,
       userid,
