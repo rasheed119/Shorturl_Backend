@@ -44,6 +44,8 @@ router.get("/dashboard/:userid", isAuthenticated, async (req, res) => {
   try {
     const { userid } = req.params;
     const data = await shorturlModel.find({ userid });
+    const userIdObj = new mongoose.Types.ObjectId(userid);
+    const user = await userModel.findById(userIdObj);
     function gettotalclicks(shorturldata) {
       let total_clicks = 0;
       shorturldata.forEach((element) => {
@@ -52,7 +54,14 @@ router.get("/dashboard/:userid", isAuthenticated, async (req, res) => {
       return total_clicks;
     }
     const totalClicks = gettotalclicks(data);
-    res.status(200).json({ totalClicks, totalurls: data.length });
+    res
+      .status(200)
+      .json({
+        totalClicks,
+        totalurls: data.length,
+        firstName: user.firstName,
+        lastName: user.lastName,
+      });
   } catch (error) {
     console.log(error.message);
   }
