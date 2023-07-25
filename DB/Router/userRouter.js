@@ -4,7 +4,6 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
 import nodemailer from "nodemailer";
-import e from "express";
 
 dotenv.config();
 
@@ -73,43 +72,6 @@ router.post("/register", async (req, res) => {
   } catch (error) {
     console.log(error.message);
     res.json({ Error: error.message });
-  }
-});
-
-//Register Resend Mail
-router.get("/registerresendmail/:email", async (req, res) => {
-  try {
-    const { email } = req.params;
-    const index = email.indexOf("@");
-    const username = email.slice(0, index).toLowerCase();
-    let domain = email.slice(index);
-    const lowercasemail = username + domain;
-    const transporter = nodemailer.createTransport({
-      host: "smtp.gmail.com",
-      port: 465,
-      secure: true,
-      auth: {
-        // TODO: replace `user` and `pass` values from <https://forwardemail.net>
-        user: mail,
-        pass: passkey,
-      },
-    });
-
-    // async..await is not allowed in global scope, must use a wrapper
-    async function main() {
-      // send mail with defined transport object
-      await transporter.sendMail({
-        from: mail, // sender address
-        to: lowercasemail, // list of receivers
-        subject: "Short Url", // Subject line
-        text: `Click the below link to activate your account :\n ${link}/activateaccount/${lowercasemail}`, // plain text body
-      });
-    }
-    main().catch(console.error.message);
-    res.status(200).json({ message: "Mail Sent Successfully" });
-  } catch (error) {
-    console.log(error.message);
-    res.status(400).json({ message: `${error.message}` });
   }
 });
 
