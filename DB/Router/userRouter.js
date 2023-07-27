@@ -176,7 +176,7 @@ router.put("/forgot_password", async (req, res) => {
   }
   main().catch(console.error.message);
   res.json({
-    message: "An password Reset link and an Secret key is send to your mail",
+    message: "An password Reset link is send to your mail",
   });
 });
 
